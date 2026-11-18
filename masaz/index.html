@@ -1152,16 +1152,18 @@ function autoObraz(k, plan) {
   if (img === 'T' && !pr) z = ['tvar'];
   const tech = technika(hmat + ' ' + (k.d || ''));
   // hmaty, ktoré automatika nevie nakresliť správne, majú pevnú kresbu (rovnakú ako v stálych zostavách)
+  // končatina na jednej strane (partie s dvoma stranami): kresli len túto stranu
+  const jednaStrana = o => (!(dk || hk) || !s || !o.k) ? o : {...o, s, k: o.k.filter(p => (p[0] === 'zrk') === (s === 'Ľ'))};
   if (img === 'Z') {
     const text2 = hmat + ' ' + (k.d || '').toLowerCase();
-    if (/kľúčn|úponu trapéz/.test(text2)) return {img, z: ['trapez'], k: obe(['body', [[436, 244], [458, 249], [480, 255]]], ['sip', 485, 232, 432, 228])};
-    if (/dandy/.test(hmat)) return {img, z: ['trapez'], k: obe(['uchop', 382, 214, 13], ['sip', 382, 198, 382, 150])};
-    if (z[0] === 'chrbat' && /eflor|obťah|nanes/.test(text2)) return {img, z, k: KZ.eflorazChrbat};
-    if (z[0] === 'lopatky' && /osmičk/.test(hmat)) return {img, z, k: [['osem', 359, 335, 62, 52]]};
-    if (z[0] === 'lopatky' && /okolo/.test(hmat)) return {img, z, k: KZ.okoloLopatky};
-    if (z[0] === 'rameno' && tech === 'x') return {img, z: ['rameno', 'lopatky'], k: KZ.rameno};
-    if (z[0] === 'trapez' && /výter/.test(hmat)) return {img, z: ['trapez', 'krk'], k: KZ.vyterTrapez};
-    if (z[0] === 'zahlavie' && /tlak|výter/.test(hmat)) return {img, z, k: [['body', [[318, 126], [338, 132], [359, 135], [380, 132], [400, 126]]]]};
+    if (/kľúčn|úponu trapéz/.test(text2)) return jednaStrana({img, z: ['trapez'], k: obe(['body', [[436, 244], [458, 249], [480, 255]]], ['sip', 485, 232, 432, 228])});
+    if (/dandy/.test(hmat)) return jednaStrana({img, z: ['trapez'], k: obe(['uchop', 382, 214, 13], ['sip', 382, 198, 382, 150])});
+    if (z[0] === 'chrbat' && /eflor|obťah|nanes/.test(text2)) return jednaStrana({img, z, k: KZ.eflorazChrbat});
+    if (z[0] === 'lopatky' && /osmičk/.test(hmat)) return jednaStrana({img, z, k: [['osem', 359, 335, 62, 52]]});
+    if (z[0] === 'lopatky' && /okolo/.test(hmat)) return jednaStrana({img, z, k: KZ.okoloLopatky});
+    if (z[0] === 'rameno' && tech === 'x') return jednaStrana({img, z: ['rameno', 'lopatky'], k: KZ.rameno});
+    if (z[0] === 'trapez' && /výter/.test(hmat)) return jednaStrana({img, z: ['trapez', 'krk'], k: KZ.vyterTrapez});
+    if (z[0] === 'zahlavie' && /tlak|výter/.test(hmat)) return jednaStrana({img, z, k: [['body', [[318, 126], [338, 132], [359, 135], [380, 132], [400, 126]]]]});
   }
   return {img, z, s: (dk || hk) ? s : undefined, t: tech};
 }
@@ -1746,14 +1748,14 @@ const STR = {
     [['uchop', 205, 290, 18], ['dvoj', 250, 892, 464, 892]]),
   hruska: () => STR_RAW('Hruškovitý sval', 'Hruškovitý sval', 'Pokrčenú nohu chyť za koleno a členok, pomaly ju tlač k opačnému ramenu.', 45, 'S', ['stehno', 'koleno'], 'P',
     [['uchop', 302, 892, 18], ['uchop', 302, 1112, 15], ['sip', 312, 858, 452, 610]]),
-  zadneStehno: () => STR_RAW('Zadné stehno', 'Zadné stehno', 'Vystretú nohu dvíhaj, kým klient necíti ťah pod kolenom. Pätu si môžeš oprieť o rameno.', 60, 'Z', ['stehno', 'koleno'], 'P',
-    [['dvoj', 418, 672, 418, 842], ['uchop', 412, 1142, 16]]),
-  lytko: () => STR_RAW('Lýtko', 'Lýtko', 'Dlaňou chyť pätu, predlaktie opri o chodidlo a tlač ho k hlave klienta. Noha ostáva vystretá.', 45, 'Z', ['lytko', 'achilles'], 'P',
-    [['dvoj', 416, 905, 414, 1122], ['uchop', 412, 1150, 16]]),
+  zadneStehno: () => STR_RAW('Zadné stehno', 'Zadné stehno', 'Vystretú nohu dvíhaj, kým klient necíti ťah pod kolenom. Pätu si môžeš oprieť o rameno.', 60, 'S', ['stehno', 'koleno'], 'P',
+    [['uchop', 302, 1112, 15], ['sip', 302, 1160, 302, 960], ['dvoj', 296, 670, 296, 850]]),
+  lytko: () => STR_RAW('Lýtko', 'Lýtko', 'Dlaňou chyť pätu, predlaktie opri o chodidlo a tlač ho k hlave klienta. Noha ostáva vystretá.', 45, 'S', ['lytko', 'clenok', 'chodidlo'], 'P',
+    [['uchop', 302, 1112, 16], ['sip', 302, 1262, 302, 1172], ['dvoj', 300, 945, 300, 1085]]),
   tahNoha: () => STR_RAW('Ťah za nohu', 'Ťah za nohu', 'Chyť nohu nad členkom a pomaly ju ťahaj k sebe v jej osi.', 45, 'S', ['dk'], 'P',
     [['uchop', 302, 1090, 16], ['sip', 302, 1170, 302, 1276]]),
-  predneStehno: () => STR_RAW('Predné stehno', 'Predné stehno', 'Pokrč nohu v kolene a pätu pomaly tlač k zadku.', 45, 'S', ['stehno'], 'P',
-    [['dvoj', 296, 660, 296, 850], ['uchop', 302, 1112, 15]]),
+  predneStehno: () => STR_RAW('Predné stehno', 'Predné stehno', 'Pokrč nohu v kolene a pätu pomaly tlač k zadku.', 45, 'Z', ['stehno', 'koleno'], 'P',
+    [['uchop', 412, 1142, 15], ['oblúk', 416, 872, 200, 90, -40], ['dvoj', 418, 672, 418, 842]]),
 };
 // strana: P / Ľ s názvom končatiny alebo strany
 const SS = (f, s, meno) => STR_STRANA(f(s), s, meno);
@@ -1900,7 +1902,7 @@ function rozbal0(plan, sOddielmi) {
   if (!plan.strany) return kroky.map(k => ({...k}));
   const m = plan.strany.meno;
   const zrkKr = (k, nazov) => (k.kr && k.kr.s === 'P' && /^Ľavá/.test(nazov)) ? {...k.kr, s: 'Ľ', k: k.kr.k.map(p => ['zrk', p])} : k.kr;
-  const strana = nazov => kroky.map(k => k.oddiel ? O(`${k.oddiel} · ${nazov}`) : (k.presun ? {...k} : {...k, p: `${nazov} · ${k.p}`, kr: zrkKr(k, nazov)}));
+  const strana = nazov => kroky.map(k => k.oddiel ? O(`${k.oddiel} · ${nazov}`) : (k.presun || k.diag ? {...k} : {...k, p: `${nazov} · ${k.p}`, kr: zrkKr(k, nazov)}));
   // diagnostika a zrovnanie tela sa robí len raz, nie pri druhej končatine
   return [...strana(`Pravá ${m}`), P(plan.strany.presun, '', 15), ...strana(`Ľavá ${m}`).filter(k => !k.diag)];
 }
