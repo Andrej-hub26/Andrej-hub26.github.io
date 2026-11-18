@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Naše appky">
+<link rel="apple-touch-icon" href="icon.png">
+<title>Naše appky</title>
+<style>
+:root{--bg:#1b2116;--card:#2a3222;--ink:#ece5d2;--line:rgba(236,229,210,.25)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,system-ui,sans-serif;min-height:100%}
+main{padding:max(24px,env(safe-area-inset-top)) 16px 32px;max-width:1000px;margin:0 auto}
+h1{font-size:28px;margin:8px 4px 24px;font-weight:700}
+.grid{display:flex;flex-wrap:wrap;margin:-10px}
+a.app{display:block;width:180px;margin:10px;text-decoration:none;color:var(--ink);text-align:center}
+a.app img{display:block;width:180px;height:180px;border-radius:36px;border:2px solid var(--line);background:var(--card)}
+a.app span{display:block;margin-top:10px;font-size:20px;font-weight:600}
+a.app:active img{transform:scale(.96)}
+@media (max-width:420px){a.app{width:calc(50% - 20px)}a.app img{width:100%;height:auto}}
+</style>
+</head>
+<body>
+<main>
+<h1>Naše appky</h1>
+<div class="grid">
+  <a class="app" href="polovnik/"><img src="polovnik/icon.png" alt=""><span>Malý poľovník</span></a>
+  <!-- masaz/ (Re:body) pribudne neskôr -->
+</div>
+</main>
+</body>
+</html>
