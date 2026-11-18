@@ -92,6 +92,8 @@ body.hraj{overflow:hidden;-webkit-user-select:none;user-select:none}
 .partia{font-size:clamp(1rem,2.4vw,1.5rem);font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
 .hrac.presun .partia{color:var(--muted)}
 .hrac.makke .partia{color:var(--soft)}
+.hrac.strec .partia{color:#d6a8e6}
+.hrac.strec .cas-bar i{background:#d6a8e6}
 .detail{white-space:pre-line}
 .hrac.blok .detail{line-height:1.4;max-width:none;columns:2 22ch;column-gap:2.5em}
 .hrac.makke .cas-bar i{background:var(--soft)}
@@ -173,7 +175,7 @@ body:not(.velky) .prep-velky,body:not(.hraj) .prep-velky{display:none}
 <div id="domov" class="domov">
   <header class="hlavicka">
     <h1>Masážny prehrávač</h1>
-    <p>Postupy podľa materiálu Masážne postupy – praktická časť (GEC 2026). Každá masáž začína mäkkými a myofasciálnymi technikami na sucho podľa skrípt z kurzu (modrý štítok), potom nasleduje predpísaný postup. Vyber plán, skontroluj kroky a spusti. Časovač kroku beží potichu; keď uplynie cieľový čas, obrazovka sa zafarbí do jantárova. Plány klientov ukazujú pri každom kroku obrázok tela: žltá oblasť = kde, žlté šípky = smer ťahov, body = tlakové body. Obrázky: OpenStax, Anatomy &amp; Physiology (CC BY 4.0).</p>
+    <p>Postupy podľa materiálu Masážne postupy – praktická časť (GEC 2026). Každá masáž začína mäkkými a myofasciálnymi technikami na sucho podľa skrípt z kurzu (modrý štítok), potom nasleduje predpísaný postup. Po masáži oblasti nasledujú pasívne strečingy a ťahy (fialový štítok), zoskupené podľa polohy: na bruchu, na chrbte, v sede na záver. Každú pozíciu drž 20 až 30 s, pomaly a bez bolesti. Vyber plán, skontroluj kroky a spusti. Časovač kroku beží potichu; keď uplynie cieľový čas, obrazovka sa zafarbí do jantárova. Plány klientov ukazujú pri každom kroku obrázok tela: žltá oblasť = kde, žlté šípky = smer ťahov, body = tlakové body. Obrázky: OpenStax, Anatomy &amp; Physiology (CC BY 4.0).</p>
   </header>
   <div id="pokracuj" hidden></div>
   <section class="sekcia"><h2>Bez plánu</h2><div class="zoznam">
@@ -1712,6 +1714,117 @@ PLANY.push({
   kroky: NACAS(PLANY.find(p => p.id === 'stala-nohy').kroky.map(k => ({...k})), 45 * 60),
 });
 
+/* ---------- Pasívne strečingy a ťahy (pokyn 18. 11. 2026) ----------
+   Po masáži danej oblasti, keď je sval prehriaty. Pomaly a plynulo, bez trhnutia. Každú pozíciu drž 20 až 30 s, klient pokojne dýcha.
+   Nesmie bolieť, pýtaj sa klienta. Napätie a povolenie: klient pár sekúnd jemne tlačí proti ruke, povolí, natiahneš o kúsok ďalej.
+   Zoskupené podľa polohy: na bruchu → na chrbte → v sede na záver. Celkové časy zostáv ostávajú, skracujú sa ostatné kroky.
+   Kresba je pre PRAVÚ stranu klienta (s: 'P'); pre ľavú sa zrkadlí. */
+const DRZ = ' Drž 20 – 30 s, pomaly, bez bolesti. Napätie a povolenie.';
+const STR_RAW = (oblast, h, d, t, im, z, s, k) => ({p: `Strečing · ${oblast}`, h, d: d + DRZ, t, strec: true, im, kr: {z, s, k}});
+const STR_STRANA = (krok, s, meno) => s === 'P' ? {...krok, h: `${krok.h} – pravá`, p: krok.p.replace(/^Strečing · /, `Strečing · Pravá ${meno} · `)}
+  : {...krok, h: `${krok.h} – ľavá`, p: krok.p.replace(/^Strečing · /, `Strečing · Ľavá ${meno} · `), kr: {...krok.kr, s: 'Ľ', k: krok.kr.k.map(p => ['zrk', p])}};
+const STR = {
+  trakcia: () => STR_RAW('Krk', 'Trakcia krku', 'Dlane pod záhlavie, hlavu pomaly ťahaj k sebe v predĺžení chrbtice.', 45, 'S', ['krk', 'hlava'], undefined,
+    [...obe(['uchop', 300, 120, 14]), ['sip', 357, 70, 357, 8]]),
+  trapez: s => STR_RAW('Horný trapéz', 'Horný trapéz', s === 'P' ? 'Hlavu mierne predkloň a ukloň doľava. Pravé rameno tlač nadol.' : 'Hlavu mierne predkloň a ukloň doprava. Ľavé rameno tlač nadol.',
+    45, 'S', ['krk', 'klucna'], 'P', [['oblúk', 357, 200, 112, -90, -45], ['uchop', 210, 258, 18], ['sip', 210, 266, 210, 326]]),
+  zadnaKrk: () => STR_RAW('Krk', 'Zadná strana krku', 'Stoj za klientom. Jednou rukou drž rameno, druhou pomaly predkloň hlavu bradou k hrudi.', 45, 'Z', ['krk', 'zahlavie', 'trapez'], undefined,
+    [['uchop', 470, 250, 18], ['sip', 359, 58, 359, 140]]),
+  tahRuka: () => STR_RAW('Ťah za ruku', 'Ťah za ruku', 'Chyť zápästie, vystretú ruku jemne ťahaj do strany, potom nad hlavu.', 45, 'S', ['hk', 'rameno'], 'P',
+    [['uchop', 72, 662, 16], ['sip', 58, 700, 20, 772], ['oblúk', 205, 290, 180, 125, 235]]),
+  lopatka: () => STR_RAW('Lopatka', 'Uvoľnenie lopatky', 'Ruka klienta za chrbtom. Podvihni rameno, prstami druhej ruky jemne vojdi pod okraj lopatky.', 60, 'Z', ['lopatky', 'rameno'], 'P',
+    [['uchop', 505, 292, 20], ['sip', 505, 305, 476, 248], ['cesta', [386, 272, 378, 330, 388, 392]]]),
+  prsne: () => STR_RAW('Hrudník', 'Prsné svaly', 'Ruky klienta roztiahni do strán a jemne ich tlač k zemi. Variant na bruchu: vystreté ruky ťaháš dozadu, je silnejší, preto pomaly.', 45, 'S', ['prsny', 'rameno'], undefined,
+    [...obe(['sip', 330, 292, 215, 292]), ...obe(['uchop', 190, 330, 17])]),
+  bocny: () => STR_RAW('Trup', 'Bočný strečing', 'Ruky klienta za hlavou, pomaly ho ukloň do strany, potom na druhú stranu.', 60, 'Z', ['bok'], undefined,
+    [['oblúk', 359, 560, 300, -120, -60, true]]),
+  driek: () => STR_RAW('Driek a kríže', 'Driekový ťah', 'Jedna dlaň na krížoch, druhá medzi lopatkami, ruky pomaly ťahaj od seba.', 45, 'Z', ['bedrovy', 'hrudny', 'sakrum'], undefined,
+    [['uchop', 359, 600, 24], ['uchop', 359, 320, 24], ['sip', 359, 628, 359, 700], ['sip', 359, 292, 359, 222]]),
+  kolena: () => STR_RAW('Driek a kríže', 'Kolená k hrudi', 'Stoj pri bedrách. Dlaň na kolená, druhú pod stehná, pokrčené kolená tlač k hrudi miernou váhou tela, nie rukami.', 45, 'S', ['stehno', 'brucho'], undefined,
+    [...obe(['uchop', 302, 892, 20]), ...obe(['sip', 300, 860, 300, 690])]),
+  rotacia: () => STR_RAW('Driek a kríže', 'Rotácia krížov', 'Pokrčené kolená. Rameno drž na stole, obe kolená naraz sklop na opačnú stranu, potom na druhú.', 60, 'S', ['brucho', 'stehno'], undefined,
+    [['uchop', 205, 290, 18], ['dvoj', 250, 892, 464, 892]]),
+  hruska: () => STR_RAW('Hruškovitý sval', 'Hruškovitý sval', 'Pokrčenú nohu chyť za koleno a členok, pomaly ju tlač k opačnému ramenu.', 45, 'S', ['stehno', 'koleno'], 'P',
+    [['uchop', 302, 892, 18], ['uchop', 302, 1112, 15], ['sip', 312, 858, 452, 610]]),
+  zadneStehno: () => STR_RAW('Zadné stehno', 'Zadné stehno', 'Vystretú nohu dvíhaj, kým klient necíti ťah pod kolenom. Pätu si môžeš oprieť o rameno.', 60, 'Z', ['stehno', 'koleno'], 'P',
+    [['dvoj', 418, 672, 418, 842], ['uchop', 412, 1142, 16]]),
+  lytko: () => STR_RAW('Lýtko', 'Lýtko', 'Dlaňou chyť pätu, predlaktie opri o chodidlo a tlač ho k hlave klienta. Noha ostáva vystretá.', 45, 'Z', ['lytko', 'achilles'], 'P',
+    [['dvoj', 416, 905, 414, 1122], ['uchop', 412, 1150, 16]]),
+  tahNoha: () => STR_RAW('Ťah za nohu', 'Ťah za nohu', 'Chyť nohu nad členkom a pomaly ju ťahaj k sebe v jej osi.', 45, 'S', ['dk'], 'P',
+    [['uchop', 302, 1090, 16], ['sip', 302, 1170, 302, 1276]]),
+  predneStehno: () => STR_RAW('Predné stehno', 'Predné stehno', 'Pokrč nohu v kolene a pätu pomaly tlač k zadku.', 45, 'S', ['stehno'], 'P',
+    [['dvoj', 296, 660, 296, 850], ['uchop', 302, 1112, 15]]),
+};
+// strana: P / Ľ s názvom končatiny alebo strany
+const SS = (f, s, meno) => STR_STRANA(f(s), s, meno);
+const trapezPL = () => [SS(STR.trapez, 'P', 'strana'), SS(STR.trapez, 'Ľ', 'strana')];
+const nohaChrbat = s => [SS(STR.hruska, s, 'DK'), SS(STR.zadneStehno, s, 'DK'), SS(STR.lytko, s, 'DK'), SS(STR.tahNoha, s, 'DK')];
+
+/* Vloží kroky za kroky s daným indexom (pôvodné poradie) a časy ostatných krokov pomerne upraví, aby celkový čas ostal rovnaký. */
+function VLOZ_STRECING(id, vlozenia, minT) {
+  const pl = PLANY.find(p => p.id === id);
+  const sum = kk => kk.reduce((a, k) => a + (k.oddiel ? 0 : k.t), 0);
+  const povodne = sum(pl.kroky);
+  const kk = pl.kroky.map(k => ({...k}));
+  [...vlozenia].sort((a, b) => b[0] - a[0]).forEach(([i, nove]) => kk.splice(i + 1, 0, ...nove.map(k => ({...k}))));
+  const pevne = kk.filter(k => !k.oddiel && (k.strec || k.presun));
+  const ostatne = kk.filter(k => !k.oddiel && !k.strec && !k.presun);
+  const ciel = povodne - sum(pevne), s0 = sum(ostatne);
+  ostatne.forEach(k => { k.t = Math.max(minT, Math.round(k.t * ciel / s0 / 5) * 5); });
+  let zv = ciel - sum(ostatne);
+  const por = [...ostatne].sort((a, b) => b.t - a.t);
+  for (let i = 0; zv !== 0 && i < 5000; i++) { const x = por[i % por.length], d = zv > 0 ? 5 : -5; if (x.t + d >= minT) { x.t += d; zv -= d; } }
+  pl.kroky = kk;
+}
+const ON = 'Strečing – na bruchu', OC = 'Strečing – na chrbte', OS_ = 'Strečing – v sede (na záver)';
+
+// Stále zostavy
+VLOZ_STRECING('stala-krk', [
+  [21, [STR.zadnaKrk()]],
+  [25, [O(OC), STR.trakcia(), ...trapezPL(), SS(STR.tahRuka, 'P', 'HK'), SS(STR.tahRuka, 'Ľ', 'HK'), STR.prsne()]],
+], 15);
+VLOZ_STRECING('stala-chrbat', [
+  [22, [O(ON), SS(STR.lopatka, 'P', 'strana'), SS(STR.lopatka, 'Ľ', 'strana'), STR.driek()]],
+], 15);
+VLOZ_STRECING('stala-krize', [
+  [19, [O(ON), STR.driek(), SS(STR.predneStehno, 'P', 'DK'), SS(STR.predneStehno, 'Ľ', 'DK')]],
+  [21, [P('Otočenie na chrbát', 'Podložka pod kolená.', 45), O(OC), STR.kolena(), STR.rotacia(), ...nohaChrbat('P'), ...nohaChrbat('Ľ')]],
+], 15);
+VLOZ_STRECING('stala-nohy', [
+  [12, [SS(STR.predneStehno, 'P', 'DK')]],
+  [23, [SS(STR.predneStehno, 'Ľ', 'DK')]],
+  [35, nohaChrbat('P')],
+  [45, nohaChrbat('Ľ')],
+], 15);
+VLOZ_STRECING('stala-ruky', [
+  [18, [SS(STR.tahRuka, 'P', 'HK')]],
+  [28, [SS(STR.tahRuka, 'Ľ', 'HK')]],
+  [30, [STR.prsne(), ...trapezPL()]],
+], 15);
+VLOZ_STRECING('stala-telo', [
+  [8, [SS(STR.lopatka, 'P', 'strana'), SS(STR.lopatka, 'Ľ', 'strana'), STR.driek()]],
+  [13, [SS(STR.predneStehno, 'P', 'DK')]],
+  [18, [SS(STR.predneStehno, 'Ľ', 'DK')]],
+  [27, nohaChrbat('P')],
+  [33, [...nohaChrbat('Ľ'), STR.kolena(), STR.rotacia()]],
+  [39, [SS(STR.tahRuka, 'P', 'HK')]],
+  [44, [SS(STR.tahRuka, 'Ľ', 'HK')]],
+  [46, [STR.prsne()]],
+  [48, [STR.trakcia(), ...trapezPL()]],
+  [50, [P('Sed na lehátku', 'Klient sa pomaly posadí, nohy voľne dolu. Stoj za ním.', 30), O(OS_), STR.zadnaKrk(), STR.bocny()]],
+], 15);
+
+// Partie (aj celotelové zostavy, ktoré sa z nich skladajú). Pri partiách s dvoma stranami sa krok kreslí pre pravú a pri ľavej zrkadlí.
+VLOZ_STRECING('chrbat-lah', [[63, [O(ON), SS(STR.lopatka, 'P', 'strana'), SS(STR.lopatka, 'Ľ', 'strana'), STR.driek()]]], 10);
+VLOZ_STRECING('chrbat-sed', [[13, [O(OS_), STR.zadnaKrk(), STR.bocny()]]], 10);
+VLOZ_STRECING('brucho', [[13, [O(OC), STR.kolena(), STR.rotacia()]]], 10);
+VLOZ_STRECING('hrudnik', [[6, [STR.prsne()]]], 10);
+VLOZ_STRECING('dk-brucho', [[45, [O(ON), STR.predneStehno()]]], 10);
+VLOZ_STRECING('dk-chrbat', [[44, [O(OC), STR.hruska(), STR.zadneStehno(), STR.lytko(), STR.tahNoha()]]], 10);
+VLOZ_STRECING('hk-brucho', [[41, [O(ON), STR.lopatka()]]], 10);
+VLOZ_STRECING('hk-chrbat', [[43, [O(OC), STR.tahRuka()]]], 10);
+VLOZ_STRECING('tvar', [[19, [O(OC), STR.trakcia(), ...trapezPL()]]], 10);
+
 PLANY.forEach(p => { if (MAKKE[p.id]) p.makke = [O('Mäkké a myofasciálne techniky (na sucho)'), ...MAKKE[p.id], O('Predpísaný postup')]; });
 
 /* ---------- Rozbalenie plánu na zoznam krokov ---------- */
@@ -1766,8 +1879,8 @@ function rozbal0(plan, sOddielmi) {
       // mäkké techniky sa v zostavách skracujú menej (plan.mk, predvolene na 70 %), zvyšok pomerne
       const MK = plan.mk || 0.7;
       // hlboké techniky (predpísaný postup) sa skrátia tak, aby zostava trvala presne plan.ciel
-      out = out.map(k => k.makke ? {...k, t: Math.max(10, Math.round(k.t * MK / 5) * 5)} : k);
-      const hlboke = k => !k.oddiel && !k.presun && !k.makke;
+      out = out.map(k => k.makke ? {...k, t: Math.max(10, Math.round(k.t * MK / 5) * 5)} : k.strec ? {...k, t: Math.max(20, Math.round(k.t * MK / 5) * 5)} : k);
+      const hlboke = k => !k.oddiel && !k.presun && !k.makke && !k.strec;
       const pevne = out.filter(k => !k.oddiel && !hlboke(k)).reduce((a, k) => a + k.t, 0);
       const skrat = (k, sk) => Math.max(5, Math.round(k.t * sk / 5) * 5);
       const sucetH = sk => out.filter(hlboke).reduce((a, k) => a + skrat(k, sk), 0);
@@ -1786,7 +1899,8 @@ function rozbal0(plan, sOddielmi) {
   const kroky = [...(plan.makke || []), ...plan.kroky].filter(k => sOddielmi || !k.oddiel);
   if (!plan.strany) return kroky.map(k => ({...k}));
   const m = plan.strany.meno;
-  const strana = nazov => kroky.map(k => k.oddiel ? O(`${k.oddiel} · ${nazov}`) : (k.presun ? {...k} : {...k, p: `${nazov} · ${k.p}`}));
+  const zrkKr = (k, nazov) => (k.kr && k.kr.s === 'P' && /^Ľavá/.test(nazov)) ? {...k.kr, s: 'Ľ', k: k.kr.k.map(p => ['zrk', p])} : k.kr;
+  const strana = nazov => kroky.map(k => k.oddiel ? O(`${k.oddiel} · ${nazov}`) : (k.presun ? {...k} : {...k, p: `${nazov} · ${k.p}`, kr: zrkKr(k, nazov)}));
   // diagnostika a zrovnanie tela sa robí len raz, nie pri druhej končatine
   return [...strana(`Pravá ${m}`), P(plan.strany.presun, '', 15), ...strana(`Ľavá ${m}`).filter(k => !k.diag)];
 }
@@ -1810,7 +1924,7 @@ function doBlokov(kroky, sOddielmi) {
     if (!akt) {
       const [zaklad, strana] = oddiel.split(' · ');
       const nazov = k.makke ? null : (zaklad === 'Predpísaný postup' ? k.p.split(' · ').pop() : zaklad);
-      akt = {partia: `${k.h0}|${strana || ''}|${!!k.makke}`, strana, h0: k.h0, makke: !!k.makke, nazov, kroky: []};
+      akt = {partia: `${k.h0}|${strana || ''}|${!!k.makke}|${!!k.strec}`, strana, h0: k.h0, makke: !!k.makke, strec: !!k.strec, nazov, kroky: []};
       skupiny.push(akt);
     }
     akt.kroky.push(...cakajuce, k);
@@ -1847,8 +1961,8 @@ function doBlokov(kroky, sOddielmi) {
     const kluc = b.partia + h;
     if (kluc === predch) h += ' – pokračovanie'; else predch = kluc;
     return {
-      p: (b.makke ? 'Mäkké techniky' : 'Predpísaný postup') + (b.strana ? ` · ${b.strana}` : ''),
-      h, h0: b.h0, makke: b.makke, blok: true, pol: (b.kroky.find(k => !k.presun) || b.kroky[0]).pol,
+      p: (b.makke ? 'Mäkké techniky' : b.strec ? 'Strečing' : 'Predpísaný postup') + (b.strana ? ` · ${b.strana}` : ''),
+      h, h0: b.h0, makke: b.makke, strec: b.strec, blok: true, pol: (b.kroky.find(k => !k.presun) || b.kroky[0]).pol,
       d: b.kroky.map((k, i) => k.presun ? `→ ${k.h}` : `${i + 1}. ${k.h}`).join('\n'),
       t: b.kroky.reduce((a, k) => a + k.t, 0),
       pod: b.kroky,
@@ -2017,6 +2131,7 @@ function vykresli() {
   const k = kroky[i];
   el.classList.toggle('presun', !!k.presun);
   el.classList.toggle('makke', !!k.makke);
+  el.classList.toggle('strec', !!k.strec);
   el.classList.toggle('blok', !!k.blok);
   $('hPartia').textContent = k.h0 ? `${k.p} · ${k.h0}` : k.p;
   $('hHmat').textContent = k.h;
